@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="HTML5Sortable">
+	<meta name="author" content="natalia">
+
+	<title>HTML5 Sortable Project</title>
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+	<script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+
+	<script src="js/jquery.js"></script>
+	<script src="js/underscore.js"></script>
+
+	<!-- Custom styles/js for this template -->
+	<link href="css/style.css" rel="stylesheet">
+	<script src="js/html5sortable.js"></script>
+
+</head>
+
+<body>
+
+	<!-- The Modal Edit -->
+		<div class="modal fade" id="editModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+			
+					<!-- Modal Header -->
+					<div class="modal-header">
+						<h4 class="modal-title">Edit</h4>
+						<button class="close" data-dismiss="modal">&times;</button>
+					</div>
+			
+					<!-- Modal body -->
+					<div class="modal-body">
+						<textarea rows="10" cols="50" wrap="hard"></textarea>
+					</div>
+			
+					<!-- Modal footer -->
+					<div class="modal-footer">
+						<button class="btn text-white font-weight-bold" data-dismiss="modal">Save</button>
+						<button class="btn text-white font-weight-bold" data-dismiss="modal">Cancel</button>
+					</div>
+			
+				</div>
+			</div>
+		</div>
+
+	<!-- Temp Data -->
+		<div>
+			<div id="temp-parent" class="row my-4 nested-list d-none">
+				<div class="row nested-item bg-transparent w-100">
+					<div class="col p-0">
+						<i class="fa fa-th text-muted parent-handle"></i>
+						<span class="ml-2">Title: </span>
+						<label>New Parent</label>
+					</div>
+					<div class="col p-0">
+						<button class="btn btn-add-child py-1 text-white font-weight-bold ml-3 float-right"><i class="fa fa-plus"></i> Add A Lesson</button>
+						<button class="btn btn-delete-parent py-1 m-0 text-white font-weight-bold float-right"><i class="fa fa-trash"></i> Delete</button>
+						<button class="btn btn-edit py-1 m-0 text-white font-weight-bold float-right" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i> Edit</button>
+					</div>
+				</div>
+
+				<div class="container-fluid nested-children-container p-0 pb-1">
+				</div>
+			</div>
+
+			<div id="temp-child" class="row nested-item nested-child bg-white d-none">
+				<div class="col p-0">
+					<i class="fa fa-th text-muted child-handle"></i>
+					<span class="ml-2">Title: </span>
+					<label>New Child</label>
+				</div>
+				<div class="col p-0">
+					<button class="btn btn-delete-child py-1 m-0 text-white font-weight-bold float-right"><i class="fa fa-trash"></i> Delete</button>
+					<button class="btn btn-edit py-1 m-0 text-white font-weight-bold float-right" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i> Edit</button>
+				</div>
+			</div>
+
+		</div>
+
+	<!-- Main Content -->
+		<div id="page-container" class="container my-5">
+
+			<div class="row">
+				<button class="btn btn-add-parent py-1 text-white font-weight-bold ml-3"><i class="fa fa-plus"></i> Add Nested List</button>
+			</div>
+
+		</div>
+
+</body>
+
+<script>
+
+		var m_bEditing = false;
+
+		init_sortable = () => {
+			sortable('#page-container', {
+				forcePlaceholderSize: true,
+//				connectWith: '.js-connected',
+				handle: '.parent-handle',
+				items: '.nested-list',
+			});
+			sortable('.nested-children-container', {
+				forcePlaceholderSize: true,
+				connectWith: '.js-inner-connected',
+				handle: '.child-handle',
+				items: '.nested-child',
+				maxItems: 10,
+			});
+		}
+
+		init_sortable();
+
+		reload_sortable = () => {
+			sortable('#page-container');
+			sortable('.nested-children-container');
+		}
+
+		set_sortable = (mode)  => {
+			sortable($('#page-container'), mode);
+			sortable($('.nested-children-container'), mode);
+		}
+
+		function onEditTitle() {
+			if(m_bEditing == false){
+				m_bEditing = true;
+				$(this).off('click');
+				var label_title = $(this).text();
+				$(this).html('<input type=text value="' + label_title + '">');
+				$(this).find('input').focus();
+				$('button').prop('disabled', true);
+				var button_check = $.parseHTML('<button class="btn btn-end-edit py-1 m-0 text-white"><i class="fa fa-check"></i></button>');
+				$(this).parent().append(button_check);
+				$(this).parent().find('button.btn-end-edit').on('click', onEndEditTitle);
+				set_sortable('disable');
+			}
+		}
+		$('label').on('click', onEditTitle);
+
+		function onEndEditTitle() {
+			if(m_bEditing == true) {
+				m_bEditing = false;
+				var label_handler = $(this).parent().find('label');
+				label_handler.on('click', onEditTitle);
+				var label_title = label_handler.find('input').val();
+				label_handler.html(label_title);
+				$(this).remove();
+				$('button').prop('disabled', false);
+				set_sortable('enable');
+
+				var data_id = label_handler.parent().parent().attr('data-id');
+				if (data_id == null) {
+					data_id = label_handler.parent().parent().parent().attr('data-id');
+				}
+
+				var message = {
+					'msg-type'		: 'update-label',
+					'data-id'		: data_id,
+					'data-label'	: label_title, 
+				};
+				AJAX(message);
+			}
+		}
+
+		function onDeleteParent() {
+			$(this).parent().parent().parent().remove();
+			reload_sortable();
+		}
+		$('button.btn-delete-parent').on('click', onDeleteParent);
+
+		function onDeleteChild() {
+			$(this).parent().parent().remove();
+			reload_sortable();
+		}
+		$('button.btn-delete-child').on('click', onDeleteChild);
+
+		function addParent(jsonParent) {
+			var newParent = $('#temp-parent').clone();
+			newParent.attr('id', '');
+			newParent.removeClass('d-none');
+			newParent.find('button.btn-delete-parent').on('click', onDeleteParent);
+			newParent.find('button.btn-add-child').on('click', onAddChild);
+			newParent.find('label').on('click', onEditTitle);
+			if(jsonParent != null) {
+				newParent.attr('data-id', jsonParent['data-id']);
+				newParent.find('label').text(jsonParent['data-label']);
+			}
+			$('#page-container').append(newParent);
+			reload_sortable();
+		}
+		function onAddParent() {
+			addParent(null);
+		}
+		$('button.btn-add-parent').on('click', onAddParent);
+
+		function addChild(parent, jsonChild) {
+			var newChild = $('#temp-child').clone();
+			newChild.attr('id', '');
+			newChild.removeClass('d-none');
+			newChild.find('button.btn-delete-child').on('click', onDeleteChild);
+			newChild.find('label').on('click', onEditTitle);
+			if(jsonChild != null) {
+				newChild.attr('data-id', jsonChild['data-id']);
+				newChild.find('label').text(jsonChild['data-label']);
+			}
+			parent.find('div.nested-children-container').append(newChild);
+			reload_sortable();
+		}
+		function onAddChild() {
+			var parent = $(this).parent().parent().parent();
+			addChild(parent, null);
+		}
+		$('button.btn-add-child').on('click', onAddChild);
+
+		function findNestedItem(id, type) {
+			return $('div[data-id="' + id + '"]');
+		}
+
+		document.querySelector('#page-container').addEventListener('sortupdate', function(e){
+			// console.log('Sortupdate: ', e.detail);
+			// console.log('Container: ', e.detail.origin.container, ' -> ', e.detail.destination.container);
+			// console.log('Index: '+e.detail.origin.index+' -> '+e.detail.destination.index);
+			// console.log('Element Index: '+e.detail.origin.elementIndex+' -> '+e.detail.destination.elementIndex);
+
+			let serialized = sortable('#page-container', 'serialize');
+			console.log(serialized);
+
+		});
+
+		var jsonData = [];
+
+		$(document).ready(function(){
+			var message = {
+				'msg-type'	: 'load'
+			};
+			AJAX(message);
+		});
+
+		$('#editModal').on('show.bs.modal', function (event) {
+			console.log(111);
+
+			var button = $(event.relatedTarget) // Button that triggered the modal
+			var data_id = button.parent().parent().attr('data-id');
+			if (data_id == null) {
+				data_id = button.parent().parent().parent().attr('data-id');
+			}
+
+			var data_element = _.findWhere(jsonData, {'data-id': data_id});
+			console.log(data_element);
+
+			var modal = $(this);
+			modal.find('.modal-title').text(data_element['data-label']);
+			modal.find('.modal-body textarea').text(data_element['data-content']);
+		});
+
+		function AJAX(message) {
+			$.ajax({
+				type: "POST",
+				url: "ajax.php",
+				data: message,
+				success: function(result) {
+					result = JSON.parse(result);
+
+					var msg_type = message['msg-type'];
+					if (msg_type == 'load') {
+						jsonData = result ;
+						result.forEach(element => {
+							if (element['data-parent'] == null) {	// parent
+								addParent(element);
+							}
+						});
+						result.forEach(element => {
+							if (element['data-parent'] != null) {	// child
+								var parent = findNestedItem(element['data-parent'], 'parent');
+								addChild(parent, element);
+							}
+						});
+					}
+					else if (msg_type == 'update-label') {
+						console.log(result);
+					}
+				},
+			});
+		}
+
+</script>
+
+
+
+
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Open modal for @mdo</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@fat">Open modal for @fat</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">Open modal for @getbootstrap</button>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Recipient:</label>
+            <input type="text" class="form-control" id="recipient-name">
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">Message:</label>
+            <textarea class="form-control" id="message-text"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Send message</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+	$(document).ready(function(){
+		$('#exampleModal').on('show.bs.modal', function (event) {
+			var button = $(event.relatedTarget) // Button that triggered the modal
+			var recipient = button.data('whatever') // Extract info from data-* attributes
+			// If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+			// Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+			var modal = $(this)
+			modal.find('.modal-title').text('New message to ' + recipient)
+			modal.find('.modal-body input').val(recipient)
+		})
+	});
+</script>
+
+
+
+
+
+
+
+
+</html>
