@@ -97,7 +97,7 @@
 		</div>
 
 	<!-- Main Content -->
-		<div id="page-container" class="container my-5">
+		<div id="page-container" class="container my-5 pb-1">
 
 			<div class="row">
 				<button class="btn btn-add-parent py-1 text-white font-weight-bold ml-3"><i class="fa fa-plus"></i> Add Nested List</button>
@@ -117,6 +117,7 @@
 //				connectWith: '.js-connected',
 				handle: '.parent-handle',
 				items: '.nested-list',
+				placeholderClass: 'border',
 			});
 			sortable('.nested-children-container', {
 				forcePlaceholderSize: true,
@@ -124,6 +125,7 @@
 				handle: '.child-handle',
 				items: '.nested-child',
 				maxItems: 10,
+				placeholderClass: 'border',
 			});
 		}
 
@@ -138,6 +140,17 @@
 			sortable($('#page-container'), mode);
 			sortable($('.nested-children-container'), mode);
 		}
+
+		var jsonData = [];
+		var edit_element;
+
+	//	load
+		$(document).ready(function(){
+			var message = {
+				'msg-type'	: 'load'
+			};
+			AJAX(message);
+		});
 
 		function onEditTitle() {
 			if(m_bEditing == false){
@@ -155,6 +168,7 @@
 		}
 		$('label').on('click', onEditTitle);
 
+	//	update label/content
 		function onEndEditTitle() {
 			if(m_bEditing == true) {
 				m_bEditing = false;
@@ -179,86 +193,6 @@
 				AJAX(message);
 			}
 		}
-
-		function onDeleteParent() {
-			var data_id = $(this).parent().parent().parent().attr('data-id');
-			$(this).parent().parent().parent().remove();
-			reload_sortable();
-
-			var message = {
-				'msg-type'		: 'delete-parent',
-				'data-id'		: data_id,
-			};
-			AJAX(message);
-		}
-		$('button.btn-delete-parent').on('click', onDeleteParent);
-
-		function onDeleteChild() {
-			var data_id = $(this).parent().parent().attr('data-id');
-			$(this).parent().parent().remove();
-			reload_sortable();
-
-			var message = {
-				'msg-type'		: 'delete-child',
-				'data-id'		: data_id,
-			};
-			AJAX(message);
-		}
-		$('button.btn-delete-child').on('click', onDeleteChild);
-
-		function addParent(jsonParent) {
-			var newParent = $('#temp-parent').clone();
-			newParent.attr('id', '');
-			newParent.removeClass('d-none');
-			newParent.find('button.btn-edit').on('click', onEditContent);
-			newParent.find('button.btn-delete-parent').on('click', onDeleteParent);
-			newParent.find('button.btn-add-child').on('click', onAddChild);
-			newParent.find('label').on('click', onEditTitle);
-			if(jsonParent != null) {
-				newParent.attr('data-id', jsonParent['data-id']);
-				newParent.find('label').text(jsonParent['data-label']);
-			}
-			$('#page-container').append(newParent);
-			reload_sortable();
-		}
-		function onAddParent() {
-			addParent(null);
-		}
-		$('button.btn-add-parent').on('click', onAddParent);
-
-		function addChild(parent, jsonChild) {
-			var newChild = $('#temp-child').clone();
-			newChild.attr('id', '');
-			newChild.removeClass('d-none');
-			newChild.find('button.btn-edit').on('click', onEditContent);
-			newChild.find('button.btn-delete-child').on('click', onDeleteChild);
-			newChild.find('label').on('click', onEditTitle);
-			if(jsonChild != null) {
-				newChild.attr('data-id', jsonChild['data-id']);
-				newChild.find('label').text(jsonChild['data-label']);
-			}
-			parent.find('div.nested-children-container').append(newChild);
-			reload_sortable();
-		}
-		function onAddChild() {
-			var parent = $(this).parent().parent().parent();
-			addChild(parent, null);
-		}
-		$('button.btn-add-child').on('click', onAddChild);
-
-		function findNestedItem(id, type) {
-			return $('div[data-id="' + id + '"]');
-		}
-
-		var jsonData = [];
-		var edit_element;
-
-		$(document).ready(function(){
-			var message = {
-				'msg-type'	: 'load'
-			};
-			AJAX(message);
-		});
 
 		function onEditContent() {
 			var data_id = $(this).parent().parent().attr('data-id');
@@ -289,6 +223,105 @@
 		}
 		$('button.btn-save').on('click', onSaveContent);
 
+	//	delete parent/child
+		function onDeleteParent() {
+			var data_id = $(this).parent().parent().parent().attr('data-id');
+			$(this).parent().parent().parent().remove();
+			reload_sortable();
+
+			var message = {
+				'msg-type'		: 'delete-parent',
+				'data-id'		: data_id,
+			};
+			AJAX(message);
+		}
+		$('button.btn-delete-parent').on('click', onDeleteParent);
+
+		function onDeleteChild() {
+			var data_id = $(this).parent().parent().attr('data-id');
+			$(this).parent().parent().remove();
+			reload_sortable();
+
+			var message = {
+				'msg-type'		: 'delete-child',
+				'data-id'		: data_id,
+			};
+			AJAX(message);
+		}
+		$('button.btn-delete-child').on('click', onDeleteChild);
+
+	//	adding parent/child not ready for new data-id
+		function addParent(jsonParent) {
+			var newParent = $('#temp-parent').clone();
+			newParent.attr('id', '');
+			newParent.removeClass('d-none');
+			newParent.find('button.btn-edit').on('click', onEditContent);
+			newParent.find('button.btn-delete-parent').on('click', onDeleteParent);
+			newParent.find('button.btn-add-child').on('click', onAddChild);
+			newParent.find('label').on('click', onEditTitle);
+			if(jsonParent != null) {
+				newParent.attr('data-id', jsonParent['data-id']);
+				newParent.find('label').text(jsonParent['data-id'] + ' : ' + jsonParent['data-label']);
+			}
+			$('#page-container').append(newParent);
+		}
+		function onAddParent() {
+			addParent(null);
+			reload_sortable();
+		}
+		$('button.btn-add-parent').on('click', onAddParent);
+
+		function addChild(parent, jsonChild) {
+			var newChild = $('#temp-child').clone();
+			newChild.attr('id', '');
+			newChild.removeClass('d-none');
+			newChild.find('button.btn-edit').on('click', onEditContent);
+			newChild.find('button.btn-delete-child').on('click', onDeleteChild);
+			newChild.find('label').on('click', onEditTitle);
+			if(jsonChild != null) {
+				newChild.attr('data-id', jsonChild['data-id']);
+				newChild.find('label').text(jsonChild['data-label']);
+			}
+			parent.find('.nested-children-container').append(newChild);
+		}
+		function onAddChild() {
+			var parent = $(this).parent().parent().parent();
+			addChild(parent, null);
+			reload_sortable();
+		}
+		$('button.btn-add-child').on('click', onAddChild);
+
+	//	order parent/child
+		document.querySelector('#page-container').addEventListener('sortupdate', function(e){
+			var data_id = e.detail.destination.items[e.detail.destination.index].getAttribute('data-id');
+			var data_order = e.detail.destination.index + 1;
+
+			var message = {
+				'msg-type'		: 'order-parent',
+				'data-id'		: data_id,
+				'data-order'	: data_order,
+			};
+
+			AJAX(message);
+		});
+
+		document.querySelector('.nested-children-container').addEventListener('sortupdate', function(e){
+			console.log(111);
+
+			var data_id = e.detail.destination.items[e.detail.destination.index].getAttribute('data-id');
+			var data_order = e.detail.destination.index + 1;
+
+			var message = {
+				'msg-type'		: 'order-parent',
+				'data-id'		: data_id,
+				'data-order'	: data_order,
+			};
+
+//			AJAX(message);
+		});
+		
+
+	//	AJAX message function
 		function AJAX(message) {
 			$.ajax({
 				type: "POST",
@@ -307,10 +340,11 @@
 						});
 						result.forEach(element => {
 							if (element['data-parent'] != null) {	// child
-								var parent = findNestedItem(element['data-parent'], 'parent');
+								var parent = $('div[data-id="' + element['data-parent'] + '"]');
 								addChild(parent, element);
 							}
 						});
+						reload_sortable();
 					}
 					else if (msg_type == 'update-label') {
 					}
@@ -319,6 +353,11 @@
 					else if (msg_type == 'delete-parent') {
 					}
 					else if (msg_type == 'delete-child') {
+					}
+					else if (msg_type == 'order-parent') {
+					}
+					else if (msg_type == 'order-child') {
+						console.log(result);
 					}
 				},
 			});
