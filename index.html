@@ -54,7 +54,7 @@
 			
 					<!-- Modal footer -->
 					<div class="modal-footer">
-						<button class="btn text-white font-weight-bold" data-dismiss="modal">Save</button>
+						<button class="btn btn-save text-white font-weight-bold" data-dismiss="modal">Save</button>
 						<button class="btn text-white font-weight-bold" data-dismiss="modal">Cancel</button>
 					</div>
 			
@@ -181,14 +181,28 @@
 		}
 
 		function onDeleteParent() {
+			var data_id = $(this).parent().parent().parent().attr('data-id');
 			$(this).parent().parent().parent().remove();
 			reload_sortable();
+
+			var message = {
+				'msg-type'		: 'delete-parent',
+				'data-id'		: data_id,
+			};
+			AJAX(message);
 		}
 		$('button.btn-delete-parent').on('click', onDeleteParent);
 
 		function onDeleteChild() {
+			var data_id = $(this).parent().parent().attr('data-id');
 			$(this).parent().parent().remove();
 			reload_sortable();
+
+			var message = {
+				'msg-type'		: 'delete-child',
+				'data-id'		: data_id,
+			};
+			AJAX(message);
 		}
 		$('button.btn-delete-child').on('click', onDeleteChild);
 
@@ -196,6 +210,7 @@
 			var newParent = $('#temp-parent').clone();
 			newParent.attr('id', '');
 			newParent.removeClass('d-none');
+			newParent.find('button.btn-edit').on('click', onEditContent);
 			newParent.find('button.btn-delete-parent').on('click', onDeleteParent);
 			newParent.find('button.btn-add-child').on('click', onAddChild);
 			newParent.find('label').on('click', onEditTitle);
@@ -215,6 +230,7 @@
 			var newChild = $('#temp-child').clone();
 			newChild.attr('id', '');
 			newChild.removeClass('d-none');
+			newChild.find('button.btn-edit').on('click', onEditContent);
 			newChild.find('button.btn-delete-child').on('click', onDeleteChild);
 			newChild.find('label').on('click', onEditTitle);
 			if(jsonChild != null) {
@@ -234,18 +250,8 @@
 			return $('div[data-id="' + id + '"]');
 		}
 
-		document.querySelector('#page-container').addEventListener('sortupdate', function(e){
-			// console.log('Sortupdate: ', e.detail);
-			// console.log('Container: ', e.detail.origin.container, ' -> ', e.detail.destination.container);
-			// console.log('Index: '+e.detail.origin.index+' -> '+e.detail.destination.index);
-			// console.log('Element Index: '+e.detail.origin.elementIndex+' -> '+e.detail.destination.elementIndex);
-
-			let serialized = sortable('#page-container', 'serialize');
-			console.log(serialized);
-
-		});
-
 		var jsonData = [];
+		var edit_element;
 
 		$(document).ready(function(){
 			var message = {
@@ -254,22 +260,34 @@
 			AJAX(message);
 		});
 
-		$('#editModal').on('show.bs.modal', function (event) {
-			console.log(111);
-
-			var button = $(event.relatedTarget) // Button that triggered the modal
-			var data_id = button.parent().parent().attr('data-id');
+		function onEditContent() {
+			var data_id = $(this).parent().parent().attr('data-id');
 			if (data_id == null) {
-				data_id = button.parent().parent().parent().attr('data-id');
+				data_id = $(this).parent().parent().parent().attr('data-id');
 			}
 
-			var data_element = _.findWhere(jsonData, {'data-id': data_id});
-			console.log(data_element);
+			jsonData.forEach(element => {
+				if (element['data-id'] == data_id) {
+					edit_element = element;
+					return;
+				}
+			});
 
-			var modal = $(this);
-			modal.find('.modal-title').text(data_element['data-label']);
-			modal.find('.modal-body textarea').text(data_element['data-content']);
-		});
+			$('.modal').find('.modal-title').text(edit_element['data-label']);
+			$('.modal').find('.modal-body textarea').text(edit_element['data-content']);
+		}
+
+		function onSaveContent() {
+			var data_id = edit_element['data-id'];
+			var data_content = $('.modal').find('textarea').val();
+			var message = {
+				'msg-type'		: 'update-content',
+				'data-id'		: data_id,
+				'data-content'	: data_content,
+			};
+			AJAX(message);
+		}
+		$('button.btn-save').on('click', onSaveContent);
 
 		function AJAX(message) {
 			$.ajax({
@@ -295,7 +313,12 @@
 						});
 					}
 					else if (msg_type == 'update-label') {
-						console.log(result);
+					}
+					else if (msg_type == 'update-content') {
+					}
+					else if (msg_type == 'delete-parent') {
+					}
+					else if (msg_type == 'delete-child') {
 					}
 				},
 			});
