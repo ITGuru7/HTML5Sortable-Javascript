@@ -49,7 +49,7 @@
 			
 					<!-- Modal body -->
 					<div class="modal-body">
-						<textarea rows="10" cols="50" wrap="hard"></textarea>
+						<textarea rows="10" cols="50" wrap="hard" autofocus></textarea>
 					</div>
 			
 					<!-- Modal footer -->
@@ -143,6 +143,18 @@
 
 		var jsonData = [];
 		var edit_element;
+		var edit_parent;
+
+		function search_jsonData_byID(data_id) {
+			for (i = 0; i < jsonData.length; i ++) {
+				if (jsonData[i]['data-id'] == data_id) {
+					edit_element = jsonData[i];
+					edit_element['index'] = i;
+					return edit_element;
+				}
+			}
+		}
+
 
 	//	load
 		$(document).ready(function(){
@@ -157,8 +169,7 @@
 				m_bEditing = true;
 				$(this).off('click');
 				var label_title = $(this).text();
-				$(this).html('<input type=text value="' + label_title + '">');
-				$(this).find('input').focus();
+				$(this).html('<input type=text value="' + label_title + '" autofocus>');
 				$('button').prop('disabled', true);
 				var button_check = $.parseHTML('<button class="btn btn-end-edit py-1 m-0 text-white"><i class="fa fa-check"></i></button>');
 				$(this).parent().append(button_check);
@@ -185,6 +196,7 @@
 					data_id = label_handler.parent().parent().parent().attr('data-id');
 				}
 
+				edit_element = search_jsonData_byID(data_id);
 				var message = {
 					'msg-type'		: 'update-label',
 					'data-id'		: data_id,
@@ -200,20 +212,16 @@
 				data_id = $(this).parent().parent().parent().attr('data-id');
 			}
 
-			jsonData.forEach(element => {
-				if (element['data-id'] == data_id) {
-					edit_element = element;
-					return;
-				}
-			});
-
+			edit_element = search_jsonData_byID(data_id);
 			$('.modal').find('.modal-title').text(edit_element['data-label']);
-			$('.modal').find('.modal-body textarea').text(edit_element['data-content']);
+			$('.modal').find('.modal-body textarea').val(edit_element['data-content']);
 		}
 
 		function onSaveContent() {
 			var data_id = edit_element['data-id'];
 			var data_content = $('.modal').find('textarea').val();
+
+			edit_element = search_jsonData_byID(data_id);
 			var message = {
 				'msg-type'		: 'update-content',
 				'data-id'		: data_id,
@@ -259,15 +267,17 @@
 			newParent.find('button.btn-delete-parent').on('click', onDeleteParent);
 			newParent.find('button.btn-add-child').on('click', onAddChild);
 			newParent.find('label').on('click', onEditTitle);
-			if(jsonParent != null) {
-				newParent.attr('data-id', jsonParent['data-id']);
-				newParent.find('label').text(jsonParent['data-id'] + ' : ' + jsonParent['data-label']);
-			}
+			newParent.attr('data-id', jsonParent['data-id']);
+			newParent.find('label').text(jsonParent['data-label']);
 			$('#page-container').append(newParent);
+
+			newParent.find('.nested-children-container').get(0).addEventListener('sortupdate', onSortUpdateChild);
 		}
 		function onAddParent() {
-			addParent(null);
-			reload_sortable();
+			var message = {
+				'msg-type'		: 'add-parent',
+			};
+			AJAX(message);
 		}
 		$('button.btn-add-parent').on('click', onAddParent);
 
@@ -285,14 +295,18 @@
 			parent.find('.nested-children-container').append(newChild);
 		}
 		function onAddChild() {
-			var parent = $(this).parent().parent().parent();
-			addChild(parent, null);
-			reload_sortable();
+			edit_parent = $(this).parent().parent().parent();
+			var data_parent = edit_parent.attr('data-id');
+			var message = {
+				'msg-type'		: 'add-child',
+				'data-parent'	: data_parent,
+			};
+			AJAX(message);
 		}
 		$('button.btn-add-child').on('click', onAddChild);
 
 	//	order parent/child
-		document.querySelector('#page-container').addEventListener('sortupdate', function(e){
+		function onSortUpdateParent(e) {
 			var data_id = e.detail.destination.items[e.detail.destination.index].getAttribute('data-id');
 			var data_order = e.detail.destination.index + 1;
 
@@ -303,23 +317,28 @@
 			};
 
 			AJAX(message);
-		});
+		}
+		document.querySelector('#page-container').addEventListener('sortupdate', onSortUpdateParent);
 
-		document.querySelector('.nested-children-container').addEventListener('sortupdate', function(e){
-			console.log(111);
-
+		function onSortUpdateChild(e) {
 			var data_id = e.detail.destination.items[e.detail.destination.index].getAttribute('data-id');
 			var data_order = e.detail.destination.index + 1;
+			var old_parent_id = e.detail.origin.container.parentElement.getAttribute('data-id');
+			var new_parent_id = e.detail.destination.container.parentElement.getAttribute('data-id');
 
 			var message = {
-				'msg-type'		: 'order-parent',
+				'msg-type'		: 'order-child',
 				'data-id'		: data_id,
 				'data-order'	: data_order,
+				'data-parent'	: new_parent_id,
 			};
 
-//			AJAX(message);
+			AJAX(message);
+		}
+		$('.nested-children-container').each(function( index ) {
+			$(this).get(0).addEventListener('sortupdate', onSortUpdateChild);
 		});
-		
+
 
 	//	AJAX message function
 		function AJAX(message) {
@@ -347,17 +366,32 @@
 						reload_sortable();
 					}
 					else if (msg_type == 'update-label') {
+						jsonData[edit_element['index']]['data-label'] = result;
 					}
 					else if (msg_type == 'update-content') {
+						jsonData[edit_element['index']]['data-content'] = result;
 					}
 					else if (msg_type == 'delete-parent') {
+						jsonData = result;
 					}
 					else if (msg_type == 'delete-child') {
+						jsonData = result;
 					}
 					else if (msg_type == 'order-parent') {
+						jsonData = result;
 					}
 					else if (msg_type == 'order-child') {
-						console.log(result);
+						jsonData = result;
+					}
+					else if (msg_type == 'add-parent') {
+						jsonData.push(result);
+						addParent(result);
+						reload_sortable();
+					}
+					else if (msg_type == 'add-child') {
+						jsonData = result['data'];
+						addChild(edit_parent, result['new_child']);
+						reload_sortable();
 					}
 				},
 			});
