@@ -75,11 +75,7 @@
 			<div id="temp-parent" class="row my-4 nested-list d-none">
 				<div class="row nested-item bg-transparent w-100">
 					<div class="col-md-6 col-sm-6 p-0">
-						<i class="fa fa-th text-muted parent-handle d-none d-md-block float-left pt-2">
-							id:<span class="data-id"></span>
-							type:<span class="data-type"></span>
-							order:<span class="data-order"></span>
-						</i>
+						<i class="fa fa-th text-muted parent-handle float-left pt-2"></i>
 						<span class="ml-2 float-left pt-1">Title:&nbsp;</span>
 						<label class="float-left">New Parent</label>
 					</div>
@@ -96,11 +92,7 @@
 
 			<div id="temp-child" class="row nested-item nested-child bg-white d-none">
 				<div class="col-md-8 col-sm-6 p-0 align-middle">
-					<i class="fa fa-th text-muted child-handle d-none d-md-block float-left pt-2">
-						id:<span class="data-id"></span>
-						type:<span class="data-type"></span>
-						order:<span class="data-order"></span>
-					</i>
+					<i class="fa fa-th text-muted child-handle float-left pt-2"></i>
 					<span class="ml-2 float-left pt-1">Title:&nbsp;</span>
 					<label class="float-left">New Child</label>
 				</div>
@@ -307,7 +299,7 @@
 			jsonData.forEach ((element, index) => {
 				if (element['data-type'] == 'parent' && element['data-order'] > delete_parent['data-order']) {
 					element['data-order'] --;
-					$('.nested-list[data-id="' + element['data-id'] + '"]').find('i.parent-handle').find('span.data-order').text(element['data-order']);
+					$('.nested-list[data-id="' + element['data-id'] + '"]').attr('data-order', element['data-order']);
 					message['update-data'].push({
 						'data-id'		: element['data-id'],
 						'data-order'	: element['data-order'],
@@ -337,7 +329,7 @@
 			jsonData.forEach ((element, index) => {
 				if (element['data-type'] == 'child' && element['data-parent'] == delete_child['data-parent'] && element['data-order'] > delete_child['data-order']) {
 					element['data-order'] --;
-					$('.nested-child[data-id="' + element['data-id'] + '"]').find('i.child-handle').find('span.data-order').text(element['data-order']);
+					$('.nested-child[data-id="' + element['data-id'] + '"]').attr('data-order', element['data-order']);
 					message['update-data'].push({
 						'data-id' 		: element['data-id'],
 						'data-order'	: element['data-order'],
@@ -359,10 +351,8 @@
 			newParent.find('button.btn-add-child').on('click', onAddChild);
 			newParent.find('label').on('click', onEditTitle);
 			newParent.attr('data-id', jsonParent['data-id']);
+			newParent.attr('data-order', jsonParent['data-order']);
 			newParent.find('label').text(jsonParent['data-label']);
-			newParent.find('span.data-id').text(jsonParent['data-id']);
-			newParent.find('span.data-type').text(jsonParent['data-type']);
-			newParent.find('span.data-order').text(jsonParent['data-order']);
 			$('#page-container').append(newParent);
 
 			newParent.find('.nested-children-container').get(0).addEventListener('sortupdate', onSortUpdateChild);
@@ -411,10 +401,8 @@
 			newChild.find('label').on('click', onEditTitle);
 			if(jsonChild != null) {
 				newChild.attr('data-id', jsonChild['data-id']);
+				newChild.attr('data-order', jsonChild['data-order']);
 				newChild.find('label').text(jsonChild['data-label']);
-				newChild.find('span.data-id').text(jsonChild['data-id']);
-				newChild.find('span.data-type').text(jsonChild['data-type']);
-				newChild.find('span.data-order').text(jsonChild['data-order']);
 			}
 			parent.find('.nested-children-container').append(newChild);
 		}
@@ -460,7 +448,7 @@
 	//	order parent/child
 		function onSortUpdateParent(e) {
 			var data_id = e.detail.destination.items[e.detail.destination.index].getAttribute('data-id');
-			var old_data_order = $('.nested-list[data-id="' + data_id + '"]').find('i.parent-handle').find('span.data-order').text();
+			var old_data_order = $('.nested-list[data-id="' + data_id + '"]').attr('data-order');
 			var new_data_order = e.detail.destination.index + 1;
 
 			jsonData.forEach ((element, index) => {
@@ -488,9 +476,9 @@
 
 			jsonData.forEach ((element, index) => {
 				if (element['data-type'] == 'parent') {
-					var old_element_order = $('.nested-list[data-id="' + element['data-id'] + '"]').find('i.parent-handle').find('span.data-order').text();
+					var old_element_order = $('.nested-list[data-id="' + element['data-id'] + '"]').attr('data-order');
 					if (element['data-order'] != old_element_order) {
-						$('.nested-list[data-id="' + element['data-id'] + '"]').find('i.parent-handle').find('span.data-order').text(element['data-order']);
+						$('.nested-list[data-id="' + element['data-id'] + '"]').attr('data-order', element['data-order']);
 						message['update-data'].push({
 							'data-id' 		: element['data-id'],
 							'data-order'	: element['data-order'],
@@ -505,7 +493,7 @@
 
 		function onSortUpdateChild(e) {
 			var data_id = e.detail.destination.items[e.detail.destination.index].getAttribute('data-id');
-			var old_data_order = $('.nested-child[data-id="' + data_id + '"]').find('i.child-handle').find('span.data-order').text();
+			var old_data_order = $('.nested-child[data-id="' + data_id + '"]').attr('data-order');
 			var new_data_order = e.detail.destination.index + 1;
 			var old_parent_id = e.detail.origin.container.parentElement.getAttribute('data-id');
 			var new_parent_id = e.detail.destination.container.parentElement.getAttribute('data-id');
@@ -524,7 +512,7 @@
 			jsonData[index]['data-order'] = new_data_order;
 			jsonData[index]['data-parent'] = new_parent_id;
 
-			$('.nested-child[data-id="' + data_id + '"]').find('i.child-handle').find('span.data-order').text(new_data_order);
+			$('.nested-child[data-id="' + data_id + '"]').attr('data-order', new_data_order);
 			var message = {
 				'msg-type'		: 'update',
 				'update-data'	: [
@@ -538,9 +526,9 @@
 
 			jsonData.forEach ((element, index) => {
 				if (element['data-type'] == 'child' && (element['data-parent'] == old_parent_id || element['data-parent'] == new_parent_id)) {
-					var old_element_order = $('.nested-child[data-id="' + element['data-id'] + '"]').find('i.child-handle').find('span.data-order').text();
+					var old_element_order = $('.nested-child[data-id="' + element['data-id'] + '"]').attr('data-order');
 					if (element['data-order'] != old_element_order) {
-						$('.nested-child[data-id="' + element['data-id'] + '"]').find('i.child-handle').find('span.data-order').text(element['data-order']);
+						$('.nested-child[data-id="' + element['data-id'] + '"]').attr('data-order', element['data-order']);
 						message['update-data'].push({
 							'data-id'		: element['data-id'],
 							'data-order'	: element['data-order'],
