@@ -72,33 +72,33 @@
 
 	<!-- Temp Data -->
 		<div>
-			<div id="temp-parent" class="row my-4 nested-list d-none">
-				<div class="row nested-item bg-transparent w-100">
-					<div class="col-md-6 col-sm-6 p-0">
-						<i class="fa fa-th text-muted parent-handle float-left pt-2"></i>
-						<span class="ml-2 float-left pt-1">Title:&nbsp;</span>
-						<label class="float-left">New Parent</label>
+			<div id="temp-parent" class="row my-4 p-0 pt-1 nested-list d-none">
+				<div class="row m-1 p-2 border-radius-3 bg-transparent w-100 d-flex justify-content-between">
+					<div class="col p-0 d-flex justify-content-start clearfix">
+						<i class="fa fa-th pt-2 mr-2 text-muted parent-handle"></i>
+						<span class="d-none d-md-block">Title:&nbsp;</span>
+						<label>New Parent</label>
 					</div>
-					<div class="col-md-6 col-sm-6 p-0">
-						<button class="btn btn-add-child py-1 text-white font-weight-bold ml-3 float-right"><i class="fa fa-plus"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Add A Lesson</span></button>
-						<button class="btn btn-delete-parent py-1 m-0 text-white font-weight-bold float-right"><i class="fa fa-trash"></i>&nbsp;<span class="d-none d-md-block float-right text-white"> Delete</span></button>
-						<button class="btn btn-edit py-1 m-0 text-white font-weight-bold float-right" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Edit</span></button>
+					<div class="col p-0 d-flex justify-content-end clearfix">
+						<button class="btn btn-edit py-1 text-white font-weight-bold" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Edit</span></button>
+						<button class="btn btn-delete-parent py-1 text-white font-weight-bold"><i class="fa fa-trash"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Delete</span></button>
+						<button class="btn btn-add-child py-1 ml-3 text-white font-weight-bold"><i class="fa fa-plus"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Add A Lesson</span></button>
 					</div>
 				</div>
 
-				<div class="container-fluid nested-children-container p-0 pb-1">
+				<div class="container-fluid p-0 pb-1 nested-children-container">
 				</div>
 			</div>
 
-			<div id="temp-child" class="row nested-item nested-child bg-white d-none">
-				<div class="col-md-8 col-sm-6 p-0 align-middle">
-					<i class="fa fa-th text-muted child-handle float-left pt-2"></i>
-					<span class="ml-2 float-left pt-1">Title:&nbsp;</span>
-					<label class="float-left">New Child</label>
+			<div id="temp-child" class="row mx-1 my-2 p-2 border-radius-3 nested-child bg-white d-none">
+				<div class="col p-0 d-flex justify-content-start">
+					<i class="fa fa-th text-muted child-handle pt-2 mr-2"></i>
+					<span class="d-none d-md-block">Title:&nbsp;</span>
+					<label>New Child</label>
 				</div>
-				<div class="col-md-4 col-sm-6 p-0">
-					<button class="btn btn-delete-child py-1 m-0 text-white font-weight-bold float-right"><i class="fa fa-trash"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Delete</span></button>
-					<button class="btn btn-edit py-1 m-0 text-white font-weight-bold float-right" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Edit</span></button>
+				<div class="col p-0 d-flex justify-content-end">
+					<button class="btn btn-edit py-1 text-white font-weight-bold" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Edit</span></button>
+					<button class="btn btn-delete-child py-1 text-white font-weight-bold"><i class="fa fa-trash"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Delete</span></button>
 				</div>
 			</div>
 
@@ -195,9 +195,6 @@
 				var label_title = $(this).text();
 				$(this).html('<input type=text value="' + label_title + '" autofocus>');
 				$('button').prop('disabled', true);
-//				var button_check = $.parseHTML('<button class="btn btn-end-edit py-1 m-0 text-white"><i class="fa fa-check"></i></button>');
-//				$(this).parent().append(button_check);
-//				$(this).parent().find('button.btn-end-edit').on('click', onEndEditTitle);
 				$(this).find('input').keypress(onEndEditTitle);
 				$(this).find('input').focusout(onEndEditTitle);
 				set_sortable('disable');
@@ -582,12 +579,12 @@
 						}
 						reload_sortable();
 					}
-					else if (msg_type == 'insert') {
-					}
-					else if (msg_type == 'delete') {
-					}
-					else if (msg_type == 'update') {
-					}
+					// else if (msg_type == 'insert') {
+					// }
+					// else if (msg_type == 'delete') {
+					// }
+					// else if (msg_type == 'update') {
+					// }
 
 					$('.alert').addClass('d-none');
 				},
