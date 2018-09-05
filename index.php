@@ -57,7 +57,7 @@
 			
 					<!-- Modal body -->
 					<div class="modal-body">
-						<textarea rows="10" cols="50" wrap="hard" autofocus></textarea>
+						<textarea rows="10" cols="50" autofocus class="w-100 h-100"></textarea>
 					</div>
 			
 					<!-- Modal footer -->
@@ -74,15 +74,15 @@
 		<div>
 			<div id="temp-parent" class="row my-4 p-0 pt-1 nested-list d-none">
 				<div class="row m-1 p-2 border-radius-3 bg-transparent w-100 d-flex justify-content-between">
-					<div class="col p-0 d-flex justify-content-start clearfix">
+					<div class="col p-0 d-flex justify-content-start">
 						<i class="fa fa-th pt-2 mr-2 text-muted parent-handle"></i>
 						<span class="d-none d-md-block">Title:&nbsp;</span>
 						<label>New Parent</label>
 					</div>
-					<div class="col p-0 d-flex justify-content-end clearfix">
+					<div class="col p-0 d-flex justify-content-end">
 						<button class="btn btn-edit py-1 text-white font-weight-bold" data-toggle="modal" data-target="#editModal"><i class="fa fa-pencil"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Edit</span></button>
 						<button class="btn btn-delete-parent py-1 text-white font-weight-bold"><i class="fa fa-trash"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Delete</span></button>
-						<button class="btn btn-add-child py-1 ml-3 text-white font-weight-bold"><i class="fa fa-plus"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Add A Lesson</span></button>
+						<button class="btn btn-add-child py-1 text-white font-weight-bold"><i class="fa fa-plus"></i>&nbsp;<span class="d-none d-md-block float-right text-white">Add A Lesson</span></button>
 					</div>
 				</div>
 
@@ -348,6 +348,7 @@
 			newParent.find('button.btn-add-child').on('click', onAddChild);
 			newParent.find('label').on('click', onEditTitle);
 			newParent.attr('data-id', jsonParent['data-id']);
+			newParent.attr('data-type', 'parent');
 			newParent.attr('data-order', jsonParent['data-order']);
 			newParent.find('label').text(jsonParent['data-label']);
 			$('#page-container').append(newParent);
@@ -398,6 +399,7 @@
 			newChild.find('label').on('click', onEditTitle);
 			if(jsonChild != null) {
 				newChild.attr('data-id', jsonChild['data-id']);
+				newChild.attr('data-type', 'child');
 				newChild.attr('data-order', jsonChild['data-order']);
 				newChild.find('label').text(jsonChild['data-label']);
 			}
