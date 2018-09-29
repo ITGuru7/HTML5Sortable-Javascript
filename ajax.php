@@ -4,7 +4,9 @@
     if (isset($_POST['csrf_token']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
 
         $result = '';
-        $result = '';
+        if ($result == '') {
+            $result = '';
+        }
 
         if (isset($_POST['msg-type'])) {
             
