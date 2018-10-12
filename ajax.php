@@ -1,12 +1,14 @@
 <?php
+    // require('session.class.php');
+    // $session = new session();
+    // // Set to true if using https
+    // $session->start_session('_s', true);
+
 	session_start();
 
     if (isset($_POST['csrf_token']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
 
         $result = '';
-        if ($result == '') {
-            $result = '';
-        }
 
         if (isset($_POST['msg-type'])) {
             

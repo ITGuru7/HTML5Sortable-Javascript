@@ -1,4 +1,9 @@
 <?php
+	// require('session.class.php');
+	// $session = new session();
+	// // Set to true if using https
+	// $session->start_session('_s', true);
+
 	session_start();
 
 	if (! isset($_SESSION['csrf_token'])) {
@@ -263,10 +268,16 @@
 		}
 
 		function onEditContent() {
-			var data_id = $(this).parent().parent().attr('data-id');
-			if (data_id == null) {
+			let data_id = $(this).parent().parent().attr('data-id');
+			if (data_id == null) {	// parent
 				data_id = $(this).parent().parent().parent().attr('data-id');
+				let index = search_array_with_props (jsonData, {'data-id' : data_id});
+				window.location.href = ("module.php?cmd=edit&id=" + data_id + "&hash=" + jsonData[index]['data-hash']);
+			} else {	// child
+				let index = search_array_with_props (jsonData, {'data-id' : data_id});
+				window.location.href = ("post.php?cmd=edit&id=" + data_id + "&parentid=" + jsonData[index]['data-parent'] + "&hash=" + jsonData[index]['data-hash']);
 			}
+			return;
 
 			var index = search_array_with_props (jsonData, {'data-id' : data_id});
 			$('#editModal').find('input[type=hidden]').val(data_id);
@@ -406,6 +417,10 @@
 				}
 			});
 			data_id ++;
+
+			window.location.href = ("module.php?cmd=create&id=" + data_id + "&hash=Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam");
+			return;
+
 			data_order ++;
 			var newParent = {
 				'data-id'		: data_id,
@@ -458,6 +473,10 @@
 				}
 			});
 			data_id ++;
+
+			window.location.href = ("post.php?cmd=create&id=" + data_id + "&parentid=" + data_parent + "&hash=Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam");
+			return;
+
 			data_order ++;
 			var newChild = {
 				'data-id'		: data_id,
