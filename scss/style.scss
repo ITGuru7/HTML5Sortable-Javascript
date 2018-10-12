@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import 'bootstrap/mixins.scss';
 @import 'bootstrap/bootstrap.scss';
 
@@ -29,3 +30,36 @@ span {
 label {
 	overflow: hidden;
 }
+=======
+@import 'bootstrap/mixins.scss';
+@import 'bootstrap/bootstrap.scss';
+
+body {
+	margin: auto ;
+	font-size: 14pt ;
+}
+
+button.btn {
+	border: 2px solid #e48822 !important ;
+	border-radius: 3px !important ;
+	background-color: #fd9727 ;
+}
+
+.nested-list {
+	border-radius: 5px ;
+	background-color: #eeeeee ;
+}
+
+.border-radius-3 {
+	border-radius: 3px ;
+}
+
+span {
+	font-size: 13pt !important ;
+	color: #4c5276 ;
+}
+
+label {
+	overflow: hidden;
+}
+>>>>>>> 2e82d7729d95e46fba7c025045445a9ba0acfafe
